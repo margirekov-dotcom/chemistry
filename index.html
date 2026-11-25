@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алканы: тренажёр-тест, 10 класс</title>
+<meta name="description" content="Интерактивный тест по органической химии для 10 класса: названия, гомологи, изомеры и физические свойства алканов, определение формулы по молярной массе.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%97%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    color-scheme: light dark;
+    --paper: #fbfcfe;
+    --grid: #dde6f4;
+    --ink: #1c2540;
+    --muted: #55607c;
+    --pen: #1f3fae;
+    --pen-soft: #e8edfb;
+    --margin: #d2514a;
+    --line: #c5d0e6;
+    --ok: #1f7a4a;
+    --ok-bg: #e4f4ea;
+    --bad: #b23a34;
+    --bad-bg: #fbe9e7;
+    --part: #8a5a00;
+    --part-bg: #fdf1d6;
+    --serif: "Iowan Old Style", "PT Serif", Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #121828;
+      --grid: #1b2540;
+      --ink: #e6ebf7;
+      --muted: #a2adc8;
+      --pen: #93acff;
+      --pen-soft: #1c2747;
+      --margin: #e3665f;
+      --line: #35426a;
+      --ok: #6fd09a;
+      --ok-bg: #153325;
+      --bad: #ff9a92;
+      --bad-bg: #3a1c1c;
+      --part: #f1c36a;
+      --part-bg: #38301a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 4.5rem; }
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--ink);
+    font: 17px/1.55 var(--sans);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* progress bar */
+  .bar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in {
+    max-width: 760px; margin: 0 auto; padding: .6rem 1rem;
+    display: flex; align-items: center; gap: .9rem;
+    font-size: .9rem; color: var(--muted);
+  }
+  .track { flex: 1; height: 6px; background: var(--pen-soft); border-radius: 3px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: var(--pen); transition: width .25s ease; }
+  .count { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* notebook page with red margin */
+  main {
+    max-width: 760px; margin: 0 auto;
+    padding: 2rem 1rem 4rem 4.2rem;
+    position: relative;
+  }
+  main::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 3.3rem;
+    width: 2px; background: var(--margin); opacity: .8;
+  }
+
+  h1 {
+    font: 700 clamp(1.9rem, 5vw, 2.6rem)/1.15 var(--serif);
+    margin: 0 0 .6rem; letter-spacing: -.01em; color: var(--pen);
+  }
+  .lead { margin: 0 0 2.2rem; color: var(--muted); max-width: 58ch; }
+
+  h2 {
+    font: 600 1.05rem/1.3 var(--sans);
+    margin: 2.8rem 0 .4rem; color: var(--pen);
+  }
+
+  /* questions */
+  .q { position: relative; padding: 1.4rem 0 1.5rem; border-top: 1px solid var(--line); }
+  h2 + .q { border-top: 0; padding-top: .6rem; }
+  .num {
+    position: absolute; left: -3.2rem; top: 1.25rem; width: 2.5rem; text-align: right;
+    font: 700 1.5rem/1 var(--serif); color: var(--pen);
+  }
+  h2 + .q .num { top: .45rem; }
+  .meta { margin: 0 0 .35rem; font-size: .85rem; color: var(--muted); }
+  .text { margin: 0 0 .9rem; font: 1.15rem/1.5 var(--serif); }
+  sub { font-size: .72em; line-height: 0; }
+
+  .opts { display: grid; gap: .45rem; }
+  .opt {
+    display: flex; gap: .7rem; align-items: baseline;
+    padding: .55rem .8rem; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--paper); cursor: pointer;
+  }
+  .opt:hover { border-color: var(--pen); }
+  .opt:has(input:checked) { border-color: var(--pen); background: var(--pen-soft); }
+  .opt input { accent-color: var(--pen); margin: 0; transform: translateY(2px); }
+  .opt .l { font-weight: 600; min-width: 1.3rem; color: var(--pen); }
+  .opt.right { border-color: var(--ok); background: var(--ok-bg); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .locked .opt { cursor: default; }
+
+  /* matching */
+  .mrow {
+    display: flex; gap: .8rem; align-items: center; justify-content: space-between;
+    padding: .45rem 0; border-bottom: 1px dashed var(--line);
+  }
+  .mi { font-family: var(--serif); font-size: 1.08rem; }
+  select, .txt {
+    font: inherit; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 6px; padding: .4rem .6rem;
+  }
+  select { min-width: 4.2rem; }
+  .txt { width: min(100%, 22rem); }
+  select:hover, .txt:hover { border-color: var(--pen); }
+  select.ok, .txt.ok { border-color: var(--ok); background: var(--ok-bg); }
+  select.bad, .txt.bad { border-color: var(--bad); background: var(--bad-bg); }
+  .fix { font-weight: 700; color: var(--ok); min-width: 1.2rem; }
+  .mopts { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .15rem; font-size: 1rem; }
+  .mopts b { color: var(--pen); display: inline-block; min-width: 1.5rem; }
+  .hint { margin: .4rem 0 0; font-size: .85rem; color: var(--muted); }
+
+  /* feedback */
+  .fb { margin-top: .9rem; padding: .7rem .9rem; border-radius: 6px; font-size: .95rem; }
+  .fb p { margin: 0; }
+  .fb p + p { margin-top: .35rem; }
+  .fb .v { font-weight: 700; }
+  .ok .fb, .fb.ok { background: var(--ok-bg); } .ok .fb .v { color: var(--ok); }
+  .part .fb { background: var(--part-bg); } .part .fb .v { color: var(--part); }
+  .bad .fb { background: var(--bad-bg); } .bad .fb .v { color: var(--bad); }
+  .empty .fb { background: var(--bad-bg); } .empty .fb .v { color: var(--bad); }
+
+  /* result */
+  .result {
+    margin: 0 0 1.5rem; padding: 1.1rem 1.2rem; border: 2px solid var(--pen); border-radius: 8px;
+    background: var(--paper);
+  }
+  .score { font: 700 2.4rem/1 var(--serif); color: var(--pen); margin: 0; }
+  .score small { font: 400 1rem var(--sans); color: var(--muted); }
+  .result p { margin: .5rem 0 0; }
+
+  /* buttons */
+  .actions { margin-top: 2.2rem; display: flex; gap: .7rem; flex-wrap: wrap; }
+  button {
+    font: 600 1rem var(--sans); padding: .75rem 1.4rem; border-radius: 6px; cursor: pointer;
+    border: 2px solid var(--pen); background: var(--pen); color: var(--paper);
+  }
+  button.ghost { background: transparent; color: var(--pen); }
+  button:hover { filter: brightness(1.08); }
+  :focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    main { padding-left: 3rem; padding-right: .8rem; }
+    main::before { left: 2.3rem; }
+    .num { left: -2.5rem; width: 1.8rem; font-size: 1.25rem; }
+    .mrow { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="bar" role="status" aria-live="polite">
+  <div class="bar-in">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="count" id="count">Отвечено 0 из 15</div>
+  </div>
+</div>
+
+<main>
+  <h1>Алканы: тест для 10 класса</h1>
+  <p class="lead">15 заданий, 20 баллов. Ответьте на все вопросы и нажмите «Проверить ответы»: тест покажет баллы и разберёт каждое задание.</p>
+  <div id="result"></div>
+  <div id="quiz"></div>
+  <div class="actions">
+    <button id="check" type="button">Проверить ответы</button>
+    <button id="reset" type="button" class="ghost" hidden>Пройти заново</button>
+  </div>
+  <noscript><p>Для работы теста нужен JavaScript.</p></noscript>
+</main>
+
+<script>
+/* ============================================================
+   ЗАДАНИЯ. Здесь можно править тексты, варианты, ответы и баллы.
+   Формулы пишутся юникодными индексами: C₄H₁₀, CₙH₂ₙ₊₂.
+   type: single | multi | match | input
+   correct: номера верных вариантов (с нуля)
+   accept: допустимые ответы для типа input (регистр, пробелы,
+           русская «С» вместо латинской C и индексы не важны)
+   ============================================================ */
+const QUESTIONS = [
+  { part: "Часть 1. Общая формула, гомологи, названия",
+    type: "single", points: 1,
+    text: "Какая формула является общей формулой алканов?",
+    options: ["CₙH₂ₙ₊₂", "CₙH₂ₙ", "CₙH₂ₙ₋₂", "CₙH₂ₙ₋₆"],
+    correct: [0],
+    explain: "Общая формула алканов CₙH₂ₙ₊₂. Формула CₙH₂ₙ относится к алкенам и циклоалканам, CₙH₂ₙ₋₂ к алкинам." },
+
+  { type: "single", points: 1,
+    text: "Какое вещество является гомологом пропана?",
+    options: ["C₂H₄", "C₄H₁₀", "C₃H₆", "C₄H₈"],
+    correct: [1],
+    explain: "Гомологи отличаются на одну или несколько групп CH₂. C₄H₁₀ принадлежит к тому же ряду, что и C₃H₈." },
+
+  { type: "multi", points: 2,
+    text: "Выберите все вещества, которые являются алканами.",
+    options: ["C₅H₁₂", "C₆H₁₂", "C₇H₁₆", "C₄H₈", "C₁₀H₂₂", "C₂H₂"],
+    correct: [0, 2, 4],
+    explain: "Под формулу CₙH₂ₙ₊₂ подходят C₅H₁₂, C₇H₁₆ и C₁₀H₂₂. У C₆H₁₂ и C₄H₈ формула CₙH₂ₙ, у C₂H₂ формула CₙH₂ₙ₋₂." },
+
+  { type: "match", points: 2,
+    text: "Установите соответствие между молекулярной формулой алкана и его названием.",
+    items: ["CH₄", "C₃H₈", "C₅H₁₂", "C₇H₁₆"],
+    options: ["пентан", "метан", "гептан", "пропан", "этан"],
+    answer: [1, 3, 0, 2],
+    explain: "Этан (вариант Д) лишний." },
+
+  { part: "Часть 2. Строение и изомерия",
+    type: "single", points: 1,
+    text: "Как называется вещество со структурной формулой CH₃–CH(CH₃)–CH₂–CH₃ по номенклатуре ИЮПАК?",
+    options: ["3-метилбутан", "2-метилбутан", "2-этилпропан", "пентан"],
+    correct: [1],
+    explain: "Главная цепь из четырёх атомов углерода (бутан), метильный радикал у второго атома: 2-метилбутан. Нумерация начинается с ближайшего к радикалу конца цепи." },
+
+  { type: "input", points: 1,
+    text: "Сколько существует структурных изомеров состава C₆H₁₄ (считая и гексан с неразветвлённой цепью)? Запишите число.",
+    accept: ["5", "пять"],
+    answerText: "5",
+    explain: "Гексан, 2-метилпентан, 3-метилпентан, 2,2-диметилбутан и 2,3-диметилбутан." },
+
+  { type: "multi", points: 2,
+    text: "Выберите все вещества, которые являются изомерами гексана C₆H₁₄.",
+    options: ["2-метилпентан", "2,2-диметилбутан", "циклогексан", "3-метилпентан", "гептан"],
+    correct: [0, 1, 3],
+    explain: "Это вещества состава C₆H₁₄ с разным строением. Циклогексан имеет формулу C₆H₁₂, гептан C₇H₁₆." },
+
+  { type: "match", points: 2,
+    text: "Установите соответствие между структурной формулой и названием вещества.",
+    items: ["CH₃–CH₂–CH(CH₃)–CH₂–CH₃", "CH₃–C(CH₃)₂–CH₂–CH₃", "CH₃–CH(CH₃)–CH(CH₃)–CH₃", "CH₃–CH₂–CH₂–CH₂–CH₂–CH₃"],
+    options: ["гексан", "2,2-диметилбутан", "3-метилпентан", "2,3-диметилбутан", "2-метилпентан"],
+    answer: [2, 1, 3, 0],
+    explain: "Вариант Д (2-метилпентан) лишний." },
+
+  { part: "Часть 3. Физические свойства",
+    type: "single", points: 1,
+    text: "Какой из алканов при 20 °C и нормальном давлении находится в жидком состоянии?",
+    options: ["CH₄", "C₃H₈", "C₅H₁₂", "C₂H₆"],
+    correct: [2],
+    explain: "При обычных условиях C₁–C₄ газы, C₅–C₁₅ жидкости, начиная с C₁₆ твёрдые вещества." },
+
+  { type: "multi", points: 2,
+    text: "Выберите все верные утверждения о физических свойствах алканов.",
+    options: [
+      "Алканы хорошо растворяются в воде.",
+      "Плотность жидких алканов меньше плотности воды.",
+      "С увеличением молярной массы температуры кипения алканов возрастают.",
+      "Алканы хорошо растворяются в неполярных органических растворителях.",
+      "Разветвлённые изомеры кипят при более высокой температуре, чем неразветвлённые."],
+    correct: [1, 2, 3],
+    explain: "Алканы неполярны и практически не растворяются в воде (А неверно). Разветвление уменьшает площадь контакта молекул, поэтому температура кипения изомеров с разветвлённой цепью ниже (Д неверно)." },
+
+  { type: "single", points: 1,
+    text: "У какого из изомеров состава C₅H₁₂ самая низкая температура кипения?",
+    options: ["пентан", "2-метилбутан", "2,2-диметилпропан"],
+    correct: [2],
+    explain: "Температуры кипения: пентан 36 °C, 2-метилбутан 28 °C, 2,2-диметилпропан 9,5 °C. Чем больше разветвлена цепь, тем ниже температура кипения." },
+
+  { part: "Часть 4. Определение формулы",
+    type: "input", points: 1,
+    text: "Молярная масса алкана равна 58 г/моль. Запишите его молекулярную формулу.",
+    hint: "Формулу можно записывать обычными цифрами, например C3H8.",
+    accept: ["c4h10", "бутан"],
+    answerText: "C₄H₁₀",
+    explain: "Mr = 14n + 2 = 58, откуда n = 4. Это бутан или его изомер." },
+
+  { type: "input", points: 1,
+    text: "Сколько атомов углерода содержится в молекуле алкана, молярная масса которого равна 86 г/моль? Запишите число.",
+    accept: ["6", "шесть"],
+    answerText: "6",
+    explain: "14n + 2 = 86, откуда n = 6 (гексан C₆H₁₄)." },
+
+  { type: "input", points: 1,
+    text: "Относительная плотность паров алкана по водороду равна 36. Запишите молекулярную формулу алкана.",
+    hint: "Формулу можно записывать обычными цифрами, например C3H8.",
+    accept: ["c5h12", "пентан"],
+    answerText: "C₅H₁₂",
+    explain: "M = 36 · 2 = 72 г/моль. 14n + 2 = 72, откуда n = 5, формула C₅H₁₂." },
+
+  { type: "input", points: 1,
+    text: "Найди массовую долю углерода в метане. Ответ дай в %.",
+    hint: "Достаточно числа, например 40.",
+    accept: ["75", "75.0"],
+    answerText: "75 %",
+    explain: "Mr(CH₄) = 12 + 4 = 16, ω(C) = 12 / 16 = 0,75, то есть 75 %." }
+];
+
+/* ============================================================
+   Ниже код тренажёра. Обычно его менять не нужно.
+   ============================================================ */
+const L = ["А", "Б", "В", "Г", "Д", "Е"];
+const TYPE_LABEL = { single: "Один ответ", multi: "Несколько ответов", match: "Соответствие", input: "Ввод ответа" };
+const SUB = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9","ₙ":"n","₊":"+","₋":"−" };
+const TOTAL = QUESTIONS.reduce((s, q) => s + q.points, 0);
+
+const fmt = s => s.replace(/[\u2080-\u208B\u2099]+/g, m => "<sub>" + [...m].map(c => SUB[c]).join("") + "</sub>");
+const balls = n => n === 1 ? "балл" : (n >= 2 && n <= 4 ? "балла" : "баллов");
+const norm = s => s.toLowerCase()
+  .replace(/[\u2080-\u2089]/g, c => String(c.charCodeAt(0) - 0x2080))
+  .replace(/[\s%]/g, "").replace(",", ".").replace(/\.$/, "")
+  .replace(/с/g, "c").replace(/н/g, "h");
+
+const quiz = document.getElementById("quiz");
+const resultBox = document.getElementById("result");
+const checkBtn = document.getElementById("check");
+const resetBtn = document.getElementById("reset");
+let checked = false;
+
+function build() {
+  checked = false;
+  quiz.innerHTML = "";
+  resultBox.innerHTML = "";
+  checkBtn.hidden = false;
+  resetBtn.hidden = true;
+
+  QUESTIONS.forEach((q, i) => {
+    if (q.part) {
+      const h = document.createElement("h2");
+      h.textContent = q.part;
+      quiz.appendChild(h);
+    }
+    const sec = document.createElement("section");
+    sec.className = "q";
+    sec.dataset.i = i;
+
+    let answer = "";
+    if (q.type === "single" || q.type === "multi") {
+      const kind = q.type === "single" ? "radio" : "checkbox";
+      answer = '<div class="opts">' + q.options.map((o, k) =>
+        `<label class="opt"><input type="${kind}" name="q${i}" value="${k}"><span class="l">${L[k]}</span><span>${fmt(o)}</span></label>`
+      ).join("") + "</div>";
+    } else if (q.type === "match") {
+      const letters = q.options.map((_, k) => `<option value="${k}">${L[k]}</option>`).join("");
+      answer = '<div class="rows">' + q.items.map((it, k) =>
+        `<div class="mrow"><span class="mi">${k + 1}) ${fmt(it)}</span><span><select data-k="${k}" aria-label="Ответ для ${k + 1}"><option value="">—</option>${letters}</select> <span class="fix"></span></span></div>`
+      ).join("") + "</div>" +
+      '<ul class="mopts">' + q.options.map((o, k) => `<li><b>${L[k]})</b>${fmt(o)}</li>`).join("") + "</ul>";
+    } else {
+      answer = `<input class="txt" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ваш ответ" aria-label="Ответ на задание ${i + 1}">` +
+               (q.hint ? `<p class="hint">${q.hint}</p>` : "");
+    }
+
+    sec.innerHTML =
+      `<div class="num">${i + 1}</div>` +
+      `<p class="meta">${TYPE_LABEL[q.type]} · ${q.points} ${balls(q.points)}</p>` +
+      `<p class="text">${fmt(q.text)}</p>` +
+      `<div class="answer">${answer}</div><div class="fb" hidden></div>`;
+    quiz.appendChild(sec);
+  });
+  updateProgress();
+}
+
+function readAnswer(q, sec) {
+  if (q.type === "single" || q.type === "multi") {
+    return [...sec.querySelectorAll("input:checked")].map(x => +x.value);
+  }
+  if (q.type === "match") {
+    return [...sec.querySelectorAll("select")].map(s => s.value === "" ? null : +s.value);
+  }
+  return sec.querySelector(".txt").value.trim();
+}
+
+function isAnswered(q, a) {
+  if (q.type === "match") return a.some(v => v !== null);
+  if (q.type === "input") return a !== "";
+  return a.length > 0;
+}
+
+function updateProgress() {
+  let n = 0;
+  QUESTIONS.forEach((q, i) => {
+    const sec = quiz.children.length ? quiz.querySelector(`.q[data-i="${i}"]`) : null;
+    if (sec && isAnswered(q, readAnswer(q, sec))) n++;
+  });
+  document.getElementById("fill").style.width = (n / QUESTIONS.length * 100) + "%";
+  document.getElementById("count").textContent = `Отвечено ${n} из ${QUESTIONS.length}`;
+}
+
+function grade(q, a) {
+  let pts = 0, ok = false;
+  if (q.type === "single") {
+    ok = a.length === 1 && q.correct.includes(a[0]);
+    pts = ok ? q.points : 0;
+  } else if (q.type === "multi") {
+    const missing = q.correct.filter(k => !a.includes(k)).length;
+    const extra = a.filter(k => !q.correct.includes(k)).length;
+    const err = missing + extra;
+    pts = err === 0 ? q.points : (err === 1 ? 1 : 0);
+    ok = err === 0;
+  } else if (q.type === "match") {
+    const right = a.filter((v, k) => v === q.answer[k]).length;
+    ok = right === q.answer.length;
+    pts = ok ? q.points : (right > q.answer.length / 2 ? 1 : 0);
+  } else {
+    ok = q.accept.map(norm).includes(norm(a));
+    pts = ok ? q.points : 0;
+  }
+  return { pts, ok };
+}
+
+function correctText(q) {
+  if (q.type === "single" || q.type === "multi")
+    return q.correct.map(k => `${L[k]}) ${fmt(q.options[k])}`).join("; ");
+  if (q.type === "match")
+    return q.answer.map((v, k) => `${k + 1}–${L[v]}`).join(", ");
+  return fmt(q.answerText);
+}
+
+function checkAll() {
+  if (checked) return;
+  checked = true;
+  let sum = 0, unanswered = 0;
+
+  QUESTIONS.forEach((q, i) => {
+    const sec = quiz.querySelector(`.q[data-i="${i}"]`);
+    const a = readAnswer(q, sec);
+    const answered = isAnswered(q, a);
+    const { pts, ok } = grade(q, a);
+    sum += pts;
+    if (!answered) unanswered++;
+
+    let status = ok ? "ok" : (pts > 0 ? "part" : (answered ? "bad" : "empty"));
+    sec.classList.add(status, "locked");
+
+    if (q.type === "single" || q.type === "multi") {
+      sec.querySelectorAll(".opt").forEach((lab, k) => {
+        const on = lab.querySelector("input").checked;
+        if (q.correct.includes(k)) lab.classList.add("right");
+        else if (on) lab.classList.add("wrong");
+      });
+    } else if (q.type === "match") {
+      sec.querySelectorAll("select").forEach((s, k) => {
+        const good = a[k] === q.answer[k];
+        s.classList.add(good ? "ok" : "bad");
+        if (!good) s.parentNode.querySelector(".fix").textContent = "→ " + L[q.answer[k]];
+      });
+    } else {
+      sec.querySelector(".txt").classList.add(ok ? "ok" : "bad");
+    }
+
+    sec.querySelectorAll("input, select").forEach(x => x.disabled = true);
+
+    const verdict = ok ? "Верно" : (pts > 0 ? "Частично верно" : (answered ? "Неверно" : "Нет ответа"));
+    const fb = sec.querySelector(".fb");
+    fb.hidden = false;
+    fb.innerHTML =
+      `<p><span class="v">${verdict}.</span> ${pts} из ${q.points} ${balls(q.points)}.</p>` +
+      (ok ? "" : `<p>Правильный ответ: ${correctText(q)}</p>`) +
+      `<p>${fmt(q.explain)}</p>`;
+  });
+
+  const pct = sum / TOTAL;
+  const msg = pct >= 0.9 ? "Отличный результат: тема освоена."
+            : pct >= 0.7 ? "Хороший результат. Посмотрите разборы заданий с ошибками."
+            : pct >= 0.5 ? "Неплохо, но есть над чем поработать. Разберите ошибки и пройдите тест ещё раз."
+            : "Стоит повторить тему и вернуться к тесту.";
+  resultBox.innerHTML =
+    `<div class="result"><p class="score">${sum} <small>из ${TOTAL} баллов</small></p><p>${msg}</p>` +
+    (unanswered ? `<p>Без ответа: ${unanswered}.</p>` : "") + "</div>";
+
+  checkBtn.hidden = true;
+  resetBtn.hidden = false;
+  resultBox.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
+
+quiz.addEventListener("input", updateProgress);
+quiz.addEventListener("change", updateProgress);
+checkBtn.addEventListener("click", checkAll);
+resetBtn.addEventListener("click", () => { build(); window.scrollTo({ top: 0 }); });
+build();
+</script>
+</body>
+</html>
